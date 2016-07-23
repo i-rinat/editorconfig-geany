@@ -200,7 +200,7 @@ on_geany_startup_complete(GObject *obj, gpointer user_data)
 
     /* load EditorConfig for each GeanyDocument on startup */
     foreach_document (i) {
-        int err_num = load_editorconfig(documents[i]);
+        int err = load_editorconfig(documents[i]);
         if (err != 0)
             dialogs_show_msgbox(GTK_MESSAGE_ERROR,
                                 "Failed to reload EditorConfig.");
