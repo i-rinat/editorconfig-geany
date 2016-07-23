@@ -16,6 +16,7 @@ add_library(editorconfig-geany SHARED
 
 target_link_libraries(editorconfig-geany
     ${REQ_LIBRARIES}
+    -leditorconfig  # TODO: search for the library rather than hardcode
 )
 
 string(REPLACE ";" " " REQ_CFLAGS_OTHER_STR "${REQ_CFLAGS_OTHER}")
