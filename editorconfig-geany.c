@@ -26,30 +26,25 @@
 /* indent_size = -1000 means indent_size = tab*/
 #define INDENT_SIZE_TAB (-1000)
 
-PLUGIN_VERSION_CHECK(211)
-
-PLUGIN_SET_INFO("EditorConfig", "EditorConfig Plugin for Geany", "0.1",
-                "http://editorconfig.org");
-
-GeanyPlugin *geany_plugin;
-GeanyData *geany_data;
-GeanyFunctions *geany_functions;
+//~ static GeanyPlugin *geany_plugin;
+//~ static GeanyData *geany_data;
+//~ static GeanyFunctions *geany_functions;
 
 /* Reload EditorConfig menu item */
 static GtkWidget *menu_item_reload_editorconfig;
 
-static void
-on_document_open(GObject *obj, GeanyDocument *gd, gpointer user_data);
+//~ static void
+//~ on_document_open(GObject *obj, GeanyDocument *gd, gpointer user_data);
 
-static void
-on_geany_startup_complete(GObject *obj, gpointer user_data);
+//~ static void
+//~ on_geany_startup_complete(GObject *obj, gpointer user_data);
 
-/* plugin signals */
-PluginCallback plugin_callbacks[] = {
-    {"document-open", (GCallback)&on_document_open, TRUE, NULL},
-    {"geany-startup-complete", (GCallback)&on_geany_startup_complete, TRUE,
-     NULL},
-    {NULL, NULL, FALSE, NULL}};
+//~ /* plugin signals */
+//~ PluginCallback plugin_callbacks2[] = {
+    //~ {"document-open", (GCallback)&on_document_open, TRUE, NULL},
+    //~ {"geany-startup-complete", (GCallback)&on_geany_startup_complete, TRUE,
+     //~ NULL},
+    //~ {NULL, NULL, FALSE, NULL}};
 
 static int
 load_editorconfig(const GeanyDocument *gd)
@@ -160,7 +155,8 @@ load_editorconfig(const GeanyDocument *gd)
  * Reload EditorConfig menu call back
  */
 static void
-menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
+menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem,
+                                 gpointer user_data)
 {
     int err_num;
     GeanyDocument *gd = document_get_current();
@@ -177,59 +173,79 @@ menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
     }
 }
 
-static void
-on_document_open(GObject *obj, GeanyDocument *gd, gpointer user_data)
+//~ static void
+//~ on_document_open(GObject *obj, GeanyDocument *gd, gpointer user_data)
+//~ {
+    //~ int err_num;
+
+    //~ if (!gd)
+        //~ return;
+
+    //~ /* reload EditorConfig */
+    //~ err_num = load_editorconfig(gd);
+    //~ if (err_num != 0) {
+        //~ dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+                            //~ "Failed to reload EditorConfig.");
+    //~ }
+//~ }
+
+//~ static void
+//~ on_geany_startup_complete(GObject *obj, gpointer user_data)
+//~ {
+    //~ int i;
+
+    //~ /* load EditorConfig for each GeanyDocument on startup */
+    //~ foreach_document (i) {
+        //~ int err = load_editorconfig(documents[i]);
+        //~ if (err != 0)
+            //~ dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+                                //~ "Failed to reload EditorConfig.");
+    //~ }
+//~ }
+
+static gboolean
+editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
 {
-    int err_num;
+    printf("editorconfig_plugin_init\n");
 
-    if (!gd)
-        return;
-
-    /* reload EditorConfig */
-    err_num = load_editorconfig(gd);
-    if (err_num != 0) {
-        dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                            "Failed to reload EditorConfig.");
-    }
-}
-
-static void
-on_geany_startup_complete(GObject *obj, gpointer user_data)
-{
-    int i;
-
-    /* load EditorConfig for each GeanyDocument on startup */
-    foreach_document (i) {
-        int err = load_editorconfig(documents[i]);
-        if (err != 0)
-            dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                                "Failed to reload EditorConfig.");
-    }
-}
-
-void
-plugin_init(GeanyData *data)
-{
-    /* Create a new menu item and show it */
+    // Create a new menu item and show it
     menu_item_reload_editorconfig =
         gtk_menu_item_new_with_mnemonic("Reload EditorConfig");
 
     gtk_widget_show(menu_item_reload_editorconfig);
 
-    /* Attach the new menu item to the Tools menu */
-    gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu),
-                      menu_item_reload_editorconfig);
+    // attach the new menu item to the Tools menu
+    gtk_container_add(
+        GTK_CONTAINER(plugin->geany_data->main_widgets->tools_menu),
+        menu_item_reload_editorconfig);
 
-    /*
-     * Connect the menu item with a callback function
-     * which is called when the item is clicked
-     */
+    // Connect the menu item with a callback function
+    // which is called when the item is clicked
     g_signal_connect(menu_item_reload_editorconfig, "activate",
                      G_CALLBACK(menu_item_reload_editorconfig_cb), NULL);
+
+    return TRUE;
 }
 
-void
-plugin_cleanup(void)
+static void
+editorconfig_plugin_cleanup(GeanyPlugin *plugin, gpointer pdata)
 {
+    printf("editorconfig_plugin_destroy\n");
     gtk_widget_destroy(menu_item_reload_editorconfig);
+}
+
+G_MODULE_EXPORT
+void
+geany_load_module(GeanyPlugin *plugin)
+{
+    plugin->info->name = "EditorConfig";
+    plugin->info->description = "EditorConfig Plugin for Geany";
+    plugin->info->version = "0.2";
+    plugin->info->author = "http://editorconfig.org"; // TODO: ?
+
+    plugin->funcs->init = editorconfig_plugin_init;
+    plugin->funcs->cleanup = editorconfig_plugin_cleanup;
+
+    if (GEANY_PLUGIN_REGISTER(plugin, 225))
+        return;
 }
