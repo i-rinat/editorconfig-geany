@@ -14,6 +14,10 @@ add_library(editorconfig-geany SHARED
     editorconfig-geany.c
 )
 
+target_link_libraries(editorconfig-geany
+    ${REQ_LIBRARIES}
+)
+
 string(REPLACE ";" " " REQ_CFLAGS_OTHER_STR "${REQ_CFLAGS_OTHER}")
 
 set_target_properties(editorconfig-geany
