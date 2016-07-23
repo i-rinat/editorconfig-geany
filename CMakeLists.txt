@@ -15,7 +15,6 @@ add_library(editorconfig-geany SHARED
 )
 
 string(REPLACE ";" " " REQ_CFLAGS_OTHER_STR "${REQ_CFLAGS_OTHER}")
-message(STATUS "hello, ${REQ_CFLAGS_OTHER_STR}")
 
 set_target_properties(editorconfig-geany
     PROPERTIES
