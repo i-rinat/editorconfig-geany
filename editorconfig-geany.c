@@ -24,7 +24,7 @@
 #include <string.h>
 
 // clang-format off
-#if 0
+#if 1
 #define TRACE(...)  do { } while (0)
 #else
 #define TRACE(...) printf(__VA_ARGS__)
