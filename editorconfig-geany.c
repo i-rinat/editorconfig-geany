@@ -23,6 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+// clang-format off
+#if 0
+#define TRACE(...)  do { } while (0)
+#else
+#define TRACE(...) printf(__VA_ARGS__)
+#endif
+// clang-format on
+
 // indent_size = -1000 means indent_size = tab
 #define INDENT_SIZE_TAB (-1000)
 
@@ -45,7 +53,8 @@ load_editorconfig(const GeanyDocument *gd)
     ScintillaObject *sci = gd->editor->sci;
 
     // start parsing
-    printf("DOC_FILENAME(gd) = %s\n", DOC_FILENAME(gd));
+    TRACE("DOC_FILENAME(gd) = %s\n", DOC_FILENAME(gd));
+
     err_num = editorconfig_parse(DOC_FILENAME(gd), eh);
     if (err_num != 0 && err_num != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
         // Ignore full path error, whose error code is
@@ -139,7 +148,8 @@ show_error_message(void)
 static void
 menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
 {
-    printf("menu_item_reload_editorconfig_cb\n");
+    TRACE("menu_item_reload_editorconfig_cb\n");
+
     GeanyDocument *doc = document_get_current();
     if (!doc)
         return;
@@ -151,7 +161,8 @@ menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
 static void
 on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
 {
-    printf("on_document_open\n");
+    TRACE("on_document_open\n");
+
     if (!doc)
         return;
 
@@ -162,7 +173,8 @@ on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
 static void
 on_document_reload(GObject *obj, GeanyDocument *doc, gpointer user_data)
 {
-    printf("on_document_reload\n");
+    TRACE("on_document_reload\n");
+
     if (!doc)
         return;
 
@@ -173,7 +185,8 @@ on_document_reload(GObject *obj, GeanyDocument *doc, gpointer user_data)
 static void
 on_document_save(GObject *obj, GeanyDocument *doc, gpointer user_data)
 {
-    printf("on_document_save\n");
+    TRACE("on_document_save\n");
+
     if (!doc)
         return;
 
@@ -184,7 +197,8 @@ on_document_save(GObject *obj, GeanyDocument *doc, gpointer user_data)
 static void
 on_geany_startup_complete(GObject *obj, gpointer user_data)
 {
-    printf("on_geany_startup_complete\n");
+    TRACE("on_geany_startup_complete\n");
+
     GeanyPlugin *plugin = user_data;
     GeanyData *geany_data = plugin->geany_data; // foreach_document uses it
     int i;
@@ -200,7 +214,7 @@ on_geany_startup_complete(GObject *obj, gpointer user_data)
 static gboolean
 editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
 {
-    printf("editorconfig_plugin_init\n");
+    TRACE("editorconfig_plugin_init\n");
 
     // Create a new menu item and show it
     menu_item_reload_editorconfig =
@@ -236,7 +250,8 @@ editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
 static void
 editorconfig_plugin_cleanup(GeanyPlugin *plugin, gpointer pdata)
 {
-    printf("editorconfig_plugin_destroy\n");
+    TRACE("editorconfig_plugin_destroy\n");
+
     gtk_widget_destroy(menu_item_reload_editorconfig);
 }
 
