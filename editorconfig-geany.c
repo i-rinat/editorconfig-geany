@@ -65,7 +65,7 @@ load_editorconfig(const GeanyDocument *gd)
         return err;
     }
 
-    // apply the settings
+    // get settings from config
     const int n = editorconfig_handle_get_name_value_count(eh);
 
     for (int k = 0; k < n; k ++) {
@@ -95,6 +95,8 @@ load_editorconfig(const GeanyDocument *gd)
             ec_conf.max_line_length = atoi(value);
         }
     }
+
+    // apply settings
 
     if (ec_conf.indent_style) {
         if (strcmp(ec_conf.indent_style, "tab") == 0) {
@@ -127,7 +129,7 @@ load_editorconfig(const GeanyDocument *gd)
         scintilla_send_message(sci, SCI_SETINDENT, (uptr_t)cur_tabwidth, 0);
     }
 
-    // set eol
+    // set end-of-line type
     if (ec_conf.end_of_line) {
         if (strcmp(ec_conf.end_of_line, "lf") == 0) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_LF, 0);
@@ -140,7 +142,7 @@ load_editorconfig(const GeanyDocument *gd)
         }
     }
 
-    // line length
+    // set maximum line length indicator
     if (ec_conf.max_line_length > 0) {
         scintilla_send_message(sci, SCI_SETEDGEMODE, EDGE_LINE, 0);
         scintilla_send_message(sci, SCI_SETEDGECOLUMN,
