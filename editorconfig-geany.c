@@ -174,21 +174,17 @@ menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem,
     }
 }
 
-//~ static void
-//~ on_document_open(GObject *obj, GeanyDocument *gd, gpointer user_data)
-//~ {
-    //~ int err_num;
+static void
+on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
+{
+    if (!doc)
+        return;
 
-    //~ if (!gd)
-        //~ return;
-
-    //~ /* reload EditorConfig */
-    //~ err_num = load_editorconfig(gd);
-    //~ if (err_num != 0) {
-        //~ dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                            //~ "Failed to reload EditorConfig.");
-    //~ }
-//~ }
+    if (load_editorconfig(doc) != 0) {
+        dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+                            "Failed to reload EditorConfig.");
+    }
+}
 
 static void
 on_geany_startup_complete(GObject *obj, gpointer user_data)
@@ -229,6 +225,9 @@ editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
 
     plugin_signal_connect(plugin, NULL, "geany-startup-complete", TRUE,
                           G_CALLBACK(on_geany_startup_complete), plugin);
+
+    plugin_signal_connect(plugin, NULL, "document-open", TRUE,
+                          G_CALLBACK(on_document_open), NULL);
 
     return TRUE;
 }
