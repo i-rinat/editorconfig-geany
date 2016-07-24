@@ -65,6 +65,7 @@ load_editorconfig(const GeanyDocument *gd)
     memset(&ecConf, 0, sizeof(ecConf));
 
     /* start parsing */
+    printf("DOC_FILENAME(gd) = %s\n", DOC_FILENAME(gd));
     err_num = editorconfig_parse(DOC_FILENAME(gd), eh);
     if (err_num != 0 && err_num != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
         /* Ignore full path error, whose error code is
@@ -189,19 +190,21 @@ menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem,
     //~ }
 //~ }
 
-//~ static void
-//~ on_geany_startup_complete(GObject *obj, gpointer user_data)
-//~ {
-    //~ int i;
+static void
+on_geany_startup_complete(GObject *obj, gpointer user_data)
+{
+    GeanyPlugin *plugin = user_data;
+    GeanyData *geany_data = plugin->geany_data; // foreach_document uses it
+    int i;
 
-    //~ /* load EditorConfig for each GeanyDocument on startup */
-    //~ foreach_document (i) {
-        //~ int err = load_editorconfig(documents[i]);
-        //~ if (err != 0)
-            //~ dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                                //~ "Failed to reload EditorConfig.");
-    //~ }
-//~ }
+    // load EditorConfig for each GeanyDocument on startup */
+    foreach_document (i) {
+        GeanyDocument *doc = documents[i];
+        if (load_editorconfig(doc) != 0)
+            dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+                                "Failed to reload EditorConfig.");
+    }
+}
 
 static gboolean
 editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
@@ -223,6 +226,9 @@ editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
     // which is called when the item is clicked
     g_signal_connect(menu_item_reload_editorconfig, "activate",
                      G_CALLBACK(menu_item_reload_editorconfig_cb), NULL);
+
+    plugin_signal_connect(plugin, NULL, "geany-startup-complete", TRUE,
+                          G_CALLBACK(on_geany_startup_complete), plugin);
 
     return TRUE;
 }
