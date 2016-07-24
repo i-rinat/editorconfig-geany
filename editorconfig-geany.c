@@ -164,6 +164,7 @@ show_error_message(void)
 static void
 menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
 {
+    printf("menu_item_reload_editorconfig_cb\n");
     GeanyDocument *doc = document_get_current();
     if (!doc)
         return;
@@ -175,6 +176,7 @@ menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
 static void
 on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
 {
+    printf("on_document_open\n");
     if (!doc)
         return;
 
@@ -185,6 +187,7 @@ on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
 static void
 on_geany_startup_complete(GObject *obj, gpointer user_data)
 {
+    printf("on_geany_startup_complete\n");
     GeanyPlugin *plugin = user_data;
     GeanyData *geany_data = plugin->geany_data; // foreach_document uses it
     int i;
