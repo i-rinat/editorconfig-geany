@@ -152,26 +152,24 @@ load_editorconfig(const GeanyDocument *gd)
     return 0;
 }
 
+static void
+show_error_message(void)
+{
+    dialogs_show_msgbox(GTK_MESSAGE_ERROR, "Failed to reload EditorConfig.");
+}
+
 /*
  * Reload EditorConfig menu call back
  */
 static void
-menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem,
-                                 gpointer user_data)
+menu_item_reload_editorconfig_cb(GtkMenuItem *menuitem, gpointer user_data)
 {
-    int err_num;
-    GeanyDocument *gd = document_get_current();
-
-    /* if gd is NULL, do nothing */
-    if (!gd)
+    GeanyDocument *doc = document_get_current();
+    if (!doc)
         return;
 
-    /* reload EditorConfig */
-    err_num = load_editorconfig(gd);
-    if (err_num != 0) {
-        dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                            "Failed to reload EditorConfig.");
-    }
+    if (load_editorconfig(doc) != 0)
+        show_error_message();
 }
 
 static void
@@ -180,10 +178,8 @@ on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
     if (!doc)
         return;
 
-    if (load_editorconfig(doc) != 0) {
-        dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                            "Failed to reload EditorConfig.");
-    }
+    if (load_editorconfig(doc) != 0)
+        show_error_message();
 }
 
 static void
@@ -197,8 +193,7 @@ on_geany_startup_complete(GObject *obj, gpointer user_data)
     foreach_document (i) {
         GeanyDocument *doc = documents[i];
         if (load_editorconfig(doc) != 0)
-            dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-                                "Failed to reload EditorConfig.");
+            show_error_message();
     }
 }
 
