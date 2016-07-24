@@ -36,15 +36,13 @@ load_editorconfig(const GeanyDocument *gd)
         int indent_size;
         int tab_width;
         const char *end_of_line;
-    } ecConf;
+    } ec_conf = {};
 
     int i;
     editorconfig_handle eh = editorconfig_handle_init();
     int err_num;
     int name_value_count;
     ScintillaObject *sci = gd->editor->sci;
-
-    memset(&ecConf, 0, sizeof(ecConf));
 
     // start parsing
     printf("DOC_FILENAME(gd) = %s\n", DOC_FILENAME(gd));
@@ -66,48 +64,48 @@ load_editorconfig(const GeanyDocument *gd)
         editorconfig_handle_get_name_value(eh, i, &name, &value);
 
         if (!strcmp(name, "indent_style")) {
-            ecConf.indent_style = value;
+            ec_conf.indent_style = value;
 
         } else if (!strcmp(name, "tab_width")) {
-            ecConf.tab_width = atoi(value);
+            ec_conf.tab_width = atoi(value);
 
         } else if (!strcmp(name, "indent_size")) {
 
             int value_i = atoi(value);
 
             if (!strcmp(value, "tab"))
-                ecConf.indent_size = INDENT_SIZE_TAB;
+                ec_conf.indent_size = INDENT_SIZE_TAB;
             else if (value_i > 0)
-                ecConf.indent_size = value_i;
+                ec_conf.indent_size = value_i;
 
         } else if (!strcmp(name, "end_of_line")) {
-            ecConf.end_of_line = value;
+            ec_conf.end_of_line = value;
         }
     }
 
-    if (ecConf.indent_style) {
-        if (!strcmp(ecConf.indent_style, "tab"))
+    if (ec_conf.indent_style) {
+        if (!strcmp(ec_conf.indent_style, "tab"))
             scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)1, 0);
-        else if (!strcmp(ecConf.indent_style, "space"))
+        else if (!strcmp(ec_conf.indent_style, "space"))
             scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)0, 0);
     }
 
-    if (ecConf.indent_size > 0) {
-        scintilla_send_message(sci, SCI_SETINDENT, (uptr_t)ecConf.indent_size,
+    if (ec_conf.indent_size > 0) {
+        scintilla_send_message(sci, SCI_SETINDENT, (uptr_t)ec_conf.indent_size,
                                0);
 
         // We set the tab width here, so that this could be overrided then
-        // if ecConf.tab_wdith > 0
+        // if ec_conf.tab_wdith > 0
 
-        scintilla_send_message(sci, SCI_SETTABWIDTH, (uptr_t)ecConf.indent_size,
-                               0);
+        scintilla_send_message(sci, SCI_SETTABWIDTH,
+                               (uptr_t)ec_conf.indent_size, 0);
     }
 
-    if (ecConf.tab_width > 0)
-        scintilla_send_message(sci, SCI_SETTABWIDTH, (uptr_t)ecConf.tab_width,
+    if (ec_conf.tab_width > 0)
+        scintilla_send_message(sci, SCI_SETTABWIDTH, (uptr_t)ec_conf.tab_width,
                                0);
 
-    if (ecConf.indent_size == INDENT_SIZE_TAB) {
+    if (ec_conf.indent_size == INDENT_SIZE_TAB) {
         int cur_tabwidth = scintilla_send_message(sci, SCI_GETTABWIDTH, 0, 0);
 
         // set indent_size to tab_width here
@@ -115,14 +113,14 @@ load_editorconfig(const GeanyDocument *gd)
     }
 
     // set eol
-    if (ecConf.end_of_line) {
-        if (!strcmp(ecConf.end_of_line, "lf")) {
+    if (ec_conf.end_of_line) {
+        if (!strcmp(ec_conf.end_of_line, "lf")) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_LF, 0);
 
-        } else if (!strcmp(ecConf.end_of_line, "crlf")) {
+        } else if (!strcmp(ec_conf.end_of_line, "crlf")) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_CRLF, 0);
 
-        } else if (!strcmp(ecConf.end_of_line, "cr")) {
+        } else if (!strcmp(ec_conf.end_of_line, "cr")) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_CR, 0);
         }
     }
