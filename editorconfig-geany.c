@@ -138,6 +138,13 @@ load_editorconfig(const GeanyDocument *gd)
         }
     }
 
+    // line length
+    if (ec_conf.max_line_length > 0) {
+        scintilla_send_message(sci, SCI_SETEDGEMODE, EDGE_LINE, 0);
+        scintilla_send_message(sci, SCI_SETEDGECOLUMN,
+                               (uptr_t)ec_conf.max_line_length, 0);
+    }
+
     editorconfig_handle_destroy(eh);
 
     return 0;
