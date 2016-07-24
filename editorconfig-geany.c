@@ -31,8 +31,7 @@
 #endif
 // clang-format on
 
-// indent_size = -1000 means indent_size = tab
-#define INDENT_SIZE_TAB (-1000)
+static const int INDENT_SIZE_TAB = -1000;
 
 static GtkWidget *menu_item_reload_editorconfig;
 
@@ -100,20 +99,18 @@ load_editorconfig(const GeanyDocument *gd)
 
     if (ec_conf.indent_style) {
         if (strcmp(ec_conf.indent_style, "tab") == 0) {
-            scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)1, 0);
+            editor_set_indent_type(gd->editor, GEANY_INDENT_TYPE_TABS);
 
         } else if (strcmp(ec_conf.indent_style, "space") == 0) {
-            scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)0, 0);
+            editor_set_indent_type(gd->editor, GEANY_INDENT_TYPE_SPACES);
         }
     }
 
     if (ec_conf.indent_size > 0) {
-        scintilla_send_message(sci, SCI_SETINDENT, (uptr_t)ec_conf.indent_size,
-                               0);
+        editor_set_indent_width(gd->editor, ec_conf.indent_size);
 
-        // We set the tab width here, so that this could be overrided then
-        // if ec_conf.tab_wdith > 0
-
+        // set the tab width here, so that this could be overrided if there is
+        // non-negative tab_width
         scintilla_send_message(sci, SCI_SETTABWIDTH,
                                (uptr_t)ec_conf.indent_size, 0);
     }
@@ -125,8 +122,9 @@ load_editorconfig(const GeanyDocument *gd)
     if (ec_conf.indent_size == INDENT_SIZE_TAB) {
         int cur_tabwidth = scintilla_send_message(sci, SCI_GETTABWIDTH, 0, 0);
 
-        // set indent_size to tab_width here
-        scintilla_send_message(sci, SCI_SETINDENT, (uptr_t)cur_tabwidth, 0);
+        // since "indent_size" was equal to "tab", indent width should be set
+        // to current tab width
+        editor_set_indent_width(gd->editor, cur_tabwidth);
     }
 
     // set end-of-line type
@@ -144,7 +142,6 @@ load_editorconfig(const GeanyDocument *gd)
 
     // set maximum line length indicator
     if (ec_conf.max_line_length > 0) {
-        scintilla_send_message(sci, SCI_SETEDGEMODE, EDGE_LINE, 0);
         scintilla_send_message(sci, SCI_SETEDGECOLUMN,
                                (uptr_t)ec_conf.max_line_length, 0);
     }
