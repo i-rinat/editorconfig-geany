@@ -162,6 +162,28 @@ on_document_open(GObject *obj, GeanyDocument *doc, gpointer user_data)
 }
 
 static void
+on_document_reload(GObject *obj, GeanyDocument *doc, gpointer user_data)
+{
+    printf("on_document_reload\n");
+    if (!doc)
+        return;
+
+    if (load_editorconfig(doc) != 0)
+        show_error_message();
+}
+
+static void
+on_document_save(GObject *obj, GeanyDocument *doc, gpointer user_data)
+{
+    printf("on_document_save\n");
+    if (!doc)
+        return;
+
+    if (load_editorconfig(doc) != 0)
+        show_error_message();
+}
+
+static void
 on_geany_startup_complete(GObject *obj, gpointer user_data)
 {
     printf("on_geany_startup_complete\n");
@@ -203,6 +225,12 @@ editorconfig_plugin_init(GeanyPlugin *plugin, gpointer pdata)
 
     plugin_signal_connect(plugin, NULL, "document-open", TRUE,
                           G_CALLBACK(on_document_open), NULL);
+
+    plugin_signal_connect(plugin, NULL, "document-reload", TRUE,
+                          G_CALLBACK(on_document_reload), NULL);
+
+    plugin_signal_connect(plugin, NULL, "document-save", TRUE,
+                          G_CALLBACK(on_document_save), NULL);
 
     return TRUE;
 }
