@@ -44,6 +44,7 @@ load_editorconfig(const GeanyDocument *gd)
         int indent_size;
         int tab_width;
         const char *end_of_line;
+        int max_line_length;
     } ec_conf = {};
 
     int i;
@@ -89,6 +90,9 @@ load_editorconfig(const GeanyDocument *gd)
 
         } else if (!strcmp(name, "end_of_line")) {
             ec_conf.end_of_line = value;
+
+        } else if (!strcmp(name, "max_line_length")) {
+            ec_conf.max_line_length = atoi(value);
         }
     }
 
