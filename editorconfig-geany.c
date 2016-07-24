@@ -40,67 +40,69 @@ static int
 load_editorconfig(const GeanyDocument *gd)
 {
     struct {
+        const char *end_of_line;
         const char *indent_style;
         int indent_size;
-        int tab_width;
-        const char *end_of_line;
         int max_line_length;
+        int tab_width;
     } ec_conf = {};
 
-    int i;
     editorconfig_handle eh = editorconfig_handle_init();
-    int err_num;
-    int name_value_count;
     ScintillaObject *sci = gd->editor->sci;
 
     // start parsing
     TRACE("DOC_FILENAME(gd) = %s\n", DOC_FILENAME(gd));
 
-    err_num = editorconfig_parse(DOC_FILENAME(gd), eh);
-    if (err_num != 0 && err_num != EDITORCONFIG_PARSE_NOT_FULL_PATH) {
-        // Ignore full path error, whose error code is
-        // EDITORCONFIG_PARSE_NOT_FULL_PATH
+    int err = editorconfig_parse(DOC_FILENAME(gd), eh);
+
+    if (err == EDITORCONFIG_PARSE_NOT_FULL_PATH) {
+        // ignore full path error
+        err = 0;
+    }
+
+    if (err != 0) {
         editorconfig_handle_destroy(eh);
-        return err_num;
+        return err;
     }
 
     // apply the settings
-    name_value_count = editorconfig_handle_get_name_value_count(eh);
+    const int n = editorconfig_handle_get_name_value_count(eh);
 
-    for (i = 0; i < name_value_count; ++i) {
+    for (int k = 0; k < n; k ++) {
         const char *name;
         const char *value;
 
-        editorconfig_handle_get_name_value(eh, i, &name, &value);
+        editorconfig_handle_get_name_value(eh, k, &name, &value);
 
-        if (!strcmp(name, "indent_style")) {
+        if (strcmp(name, "indent_style") == 0) {
             ec_conf.indent_style = value;
 
-        } else if (!strcmp(name, "tab_width")) {
+        } else if (strcmp(name, "tab_width") == 0) {
             ec_conf.tab_width = atoi(value);
 
-        } else if (!strcmp(name, "indent_size")) {
-
+        } else if (strcmp(name, "indent_size") == 0) {
             int value_i = atoi(value);
 
-            if (!strcmp(value, "tab"))
+            if (strcmp(value, "tab") == 0)
                 ec_conf.indent_size = INDENT_SIZE_TAB;
             else if (value_i > 0)
                 ec_conf.indent_size = value_i;
 
-        } else if (!strcmp(name, "end_of_line")) {
+        } else if (strcmp(name, "end_of_line") == 0) {
             ec_conf.end_of_line = value;
 
-        } else if (!strcmp(name, "max_line_length")) {
+        } else if (strcmp(name, "max_line_length") == 0) {
             ec_conf.max_line_length = atoi(value);
         }
     }
 
     if (ec_conf.indent_style) {
-        if (!strcmp(ec_conf.indent_style, "tab"))
+        if (strcmp(ec_conf.indent_style, "tab") == 0) {
             scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)1, 0);
-        else if (!strcmp(ec_conf.indent_style, "space"))
+
+        } else if (strcmp(ec_conf.indent_style, "space") == 0) {
             scintilla_send_message(sci, SCI_SETUSETABS, (uptr_t)0, 0);
+        }
     }
 
     if (ec_conf.indent_size > 0) {
@@ -127,13 +129,13 @@ load_editorconfig(const GeanyDocument *gd)
 
     // set eol
     if (ec_conf.end_of_line) {
-        if (!strcmp(ec_conf.end_of_line, "lf")) {
+        if (strcmp(ec_conf.end_of_line, "lf") == 0) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_LF, 0);
 
-        } else if (!strcmp(ec_conf.end_of_line, "crlf")) {
+        } else if (strcmp(ec_conf.end_of_line, "crlf") == 0) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_CRLF, 0);
 
-        } else if (!strcmp(ec_conf.end_of_line, "cr")) {
+        } else if (strcmp(ec_conf.end_of_line, "cr") == 0) {
             scintilla_send_message(sci, SCI_SETEOLMODE, (uptr_t)SC_EOL_CR, 0);
         }
     }
